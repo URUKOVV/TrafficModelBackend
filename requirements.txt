@@ -1,0 +1,5 @@
+django==3.2.3
+channels==3.0.3
+psycopg2==2.8.6
+django-redis==4.12.1
+redis

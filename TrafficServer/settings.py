@@ -127,3 +127,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_PASSWORD = ''
+CHANNELS_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)]
+        }
+    }
+}

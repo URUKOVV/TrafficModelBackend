@@ -1,34 +1,28 @@
-import json
+import asyncio
 import time
 
 import redis
-from time import sleep
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django.conf import settings
 
-from channels.generic.websocket import WebsocketConsumer
 
-
-class TrafficModelConsumer(WebsocketConsumer):
+class TrafficModelConsumer(AsyncWebsocketConsumer):
     alive = False
+    redis_instance = None
+    time_prev = None
 
-    def connect(self):
+    async def connect(self):
         self.alive = True
-        self.accept()
-        redis_instance = redis.StrictRedis(
+        await self.accept()
+        self.redis_instance = redis.StrictRedis(
             host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, password=settings.REDIS_PASSWORD
         )
-        while self.alive:
-            time_start = time.perf_counter_ns()
-            redis_data = redis_instance.get('cars')
-            self.send(redis_data.decode('utf-8'))
-            sleep_time = 0.167 - time.perf_counter_ns() - time_start * 1e-9
-            if sleep_time > 0.0:
-                sleep(sleep_time)
 
-    def close(self, code=None):
-        self.alive = False
-        return super().close(code=code)
+    async def receive(self, text_data=None, bytes_data=None):
+        redis_data = self.redis_instance.get('cars')
+        if self.time_prev:
+            sleep_time = 0.167 - time.perf_counter_ns() - self.time_prev * 1e-9
+            await asyncio.sleep(sleep_time)
+        await self.send(redis_data.decode('utf-8'))
+        self.time_prev = time.perf_counter_ns()
 
-    def disconnect(self, code):
-        self.alive = False
-        return super().disconnect(code)

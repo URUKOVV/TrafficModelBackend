@@ -20,9 +20,11 @@ class TrafficModelConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         redis_data = self.redis_instance.get('cars')
+        if not redis_data:
+            await self.send(b'[]'.decode('utf-8'))
+        else:
+            await self.send(redis_data.decode('utf-8'))
         if self.time_prev:
             sleep_time = 0.167 - time.perf_counter_ns() - self.time_prev * 1e-9
             await asyncio.sleep(sleep_time)
-        await self.send(redis_data.decode('utf-8'))
-        self.time_prev = time.perf_counter_ns()
-
+            self.time_prev = time.perf_counter_ns()

@@ -19,7 +19,7 @@ class TrafficModelConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive(self, text_data=None, bytes_data=None):
-        redis_data = self.redis_instance.get('cars')
+        redis_data = self.redis_instance.get('traffic_model_data')
         if not redis_data:
             await self.send(b'[]'.decode('utf-8'))
         else:

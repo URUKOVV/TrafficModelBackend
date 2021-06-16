@@ -27,4 +27,4 @@ class TrafficModelConsumer(AsyncWebsocketConsumer):
         if self.time_prev:
             sleep_time = 0.167 - time.perf_counter_ns() - self.time_prev * 1e-9
             await asyncio.sleep(sleep_time)
-            self.time_prev = time.perf_counter_ns()
+        self.time_prev = time.perf_counter_ns()
